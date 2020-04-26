@@ -59,33 +59,33 @@ void setup() {
   Serial.println("Inicio");
   LCD_Init();
   LCD_Clear(0x00);
-  
-  FillRect(0, 0, 319, 206, 0x421b);
-  String text1 = "Mario ejemplo";
-  LCD_Print(text1, 20, 100, 2, 0xffff, 0x421b);
-//  LCD_Sprite(int x, int y, int width, int height, unsigned char bitmap[],int columns, int index, char flip, char offset);
-    
-  //LCD_Bitmap(unsigned int x, unsigned int y, unsigned int width, unsigned int height, unsigned char bitmap[]);
-  //LCD_Bitmap(0, 0, 320, 240, fondo);
+  FillRect(0, 0, 319, 206, 0x00);
+  String text1 = "Flappy Bird 2.0";
+  LCD_Print(text1, 50, 10, 2, 0xffff, 0x00);
 
-  LCD_Sprite(20, 175, 16, 32, luigi,8, 1 ,1, 0);
+
+
   
-  for(int x = 0; x <319; x++){
-    LCD_Bitmap(x, 52, 16, 16, tile2);
-    LCD_Bitmap(x, 68, 16, 16, tile);
-    
-    LCD_Bitmap(x, 207, 16, 16, tile);
-    LCD_Bitmap(x, 223, 16, 16, tile);
-    x += 15;
- }
-  
+ 
 }
+
 //***************************************************************************************************************************************
 // Loop Infinito
 //***************************************************************************************************************************************
 void loop() {
+
+  for(int x=0; x<4;x++){
+    delay(100); 
+    int anim =x;
+    LCD_Sprite(60, 60, 16, 16, J2,3,anim,1,0);
+    LCD_Sprite(20, 20, 16, 16, J1,3,anim,1,0);
+ 
+  }
+
+ LCD_Bitmap(60, 100, 30, 34, ARBOL);
+
   
-  for(int x = 0; x <320-17; x++){
+ /* for(int x = 0; x <320-17; x++){
     delay(10);
     int anim = (x/15)%8;
 
@@ -100,7 +100,8 @@ void loop() {
     LCD_Sprite(x, 175, 16, 32, luigi,8, anim,0, 0);
     V_line( x +16, 175, 32, 0x421b);
   }
-}
+  */
+} 
 
 //***************************************************************************************************************************************
 // Función para inicializar LCD
