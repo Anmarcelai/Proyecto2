@@ -1,11 +1,11 @@
-//***
+//*
 /* Librería para el uso de la pantalla ILI9341 en modo 8 bits
  * Basado en el código de martinayotte - https://www.stm32duino.com/viewtopic.php?t=637
  * Adaptación, migración y creación de nuevas funciones: Pablo Mazariegos y José Morales
  * Con ayuda de: José Guerra
  * IE3027: Electrónica Digital 2 - 2019
  */
-//***
+//*
 #include <stdint.h>
 #include <stdbool.h>
 #include <TM4C123GH6PM.h>
@@ -29,7 +29,7 @@
 #define LCD_RS PD_2
 #define LCD_WR PD_3
 #define LCD_RD PE_1
-int DPINS[] = {PB_0, PB_1, PB_2, PB_3, PB_4, PB_5, PB_6, PB_7};  
+int DPINS[] = {PB_0, PB_1, PB_2, PB_3, PB_4, PB_5, PB_6, PB_7,PA_7};  
 
 const int buttonPin1 = PUSH1;  // PLAYER 1 - MENU
 const int buttonPin2 = PUSH2;  // PLAYER 2
@@ -42,11 +42,18 @@ float caida = 0;              // AUMENTO DE VELOCIDAD
 int y = 160;                  // POSICION DEL PAJARO
 
 int x = 319;                  // POSICION DEL PAJARO
-int movimiento = 2;
+int movimiento = 2;           // MOVIMIENTO DE LOS TUBOS
 
-//***
+int yc = 0;                 // ALTURA DE LOS TUBOS
+
+int yl = 0;                 // POSICION PARA LA Y EL TUBO DE ABAJO
+int al = 0;                 // ALTURA DEL TUBO DE ABAJO
+
+int score = 0;             // contador del puntaje del jugador
+
+//*
 // Functions Prototypes
-//***
+//*
 void LCD_Init(void);
 void LCD_CMD(uint8_t cmd);
 void LCD_DATA(uint8_t data);
@@ -63,9 +70,9 @@ void LCD_Sprite(int x, int y, int width, int height, unsigned char bitmap[],int 
 
 
 extern uint8_t fondo[];
-//***
+//*
 // Inicialización
-//***
+//*
 void setup() {
   
   SysCtlClockSet(SYSCTL_SYSDIV_2_5|SYSCTL_USE_PLL|SYSCTL_OSC_MAIN|SYSCTL_XTAL_16MHZ);
@@ -74,7 +81,7 @@ void setup() {
   Serial.println("Inicio");
   LCD_Init();
   LCD_Clear(0x00);
-
+pinMode(PA_7, OUTPUT);
   pinMode(buttonPin1, INPUT_PULLUP);
   pinMode(buttonPin2, INPUT_PULLUP);
   
@@ -97,14 +104,14 @@ void setup() {
  }
         
     delay(500);
-    FillRect(0, 50, 319, 50, 0x0000);
+    FillRect(0, 0, 319, 240, 0x0bfff);
  
     
   
 }
-//***
-// Loop Infinito
-//***
+//*****
+//              Loop Infinito
+//******
 void loop() {
   int boton1 = digitalRead(buttonPin1); 
   int boton2 = digitalRead(buttonPin2); 
@@ -112,24 +119,28 @@ void loop() {
   if(menu==0){
      y=160;
      x=339;
+     yc = 20;
     String text1 = "Flappy Bird";
-     LCD_Print(text1, 80, 40, 2, 0x0ff0, 0x0000);
+     LCD_Print(text1, 80, 40, 2, 0x00000, 0x00bfff);
      for(int x=0 ; x<4; x++){
-     LCD_Sprite(60, 40, 16, 16, J2,3,x,0, 0);
-     LCD_Sprite(260, 40, 16, 16, J1,3,x,0, 0);
+     LCD_Sprite(60, 40, 16, 16, PAJARO,3,x,0, 0);
+     LCD_Sprite(260, 40, 16, 16, PAJARO,3,x,0, 0);
+     for(int x = 0; x <319; x = x + 22){
+       LCD_Bitmap(x, 201, 22, 39, GRAMA);}
      delay(90);
      }
      String text2 = "Instrucciones:";
      String text3 = "Con los botones ";
-     LCD_Print(text2, 60, 70, 2, 0xf0ff, 0x0000);
-     LCD_Print(text3, 50, 90, 2, 0xf0ff, 0x0000);
+     LCD_Print(text2, 60, 70, 2, 0xf0ff, 0x0bfff);
+     LCD_Print(text3, 50, 90, 2, 0xf0ff, 0x0bfff);
      String text4 = "evite los obstaculos";
      String text5 = "Presione Boton 1 y 2";
-    LCD_Print(text4, 0, 110, 2, 0xf0ff, 0x0000);
-    LCD_Print(text5, 0, 130, 2, 0xf0ff, 0x0000);
+    LCD_Print(text4, 0, 110, 2, 0xf0ff, 0x0bfff);
+    LCD_Print(text5, 0, 130, 2, 0xf0ff, 0x0bfff);
     if (boton1==0 && boton2==0){
       menu=1;
-      FillRect(0, 0, 319, 206, 0x0000);
+       digitalWrite(PA_7,HIGH);
+      FillRect(0, 0, 319, 240, 0x0000);
        for(int x = 0; x <319; x = x + 16){
        LCD_Bitmap(x, 112, 16, 16, tile2);}
       LCD_Sprite(50, y, 16, 16, J2,3, 1 ,0, 0);
@@ -140,16 +151,16 @@ void loop() {
 if(menu==1){
   
   // ------------ CAIDA DEL PAJARO --------------- 
-  y+=caidaInt; 
-  caida=caida+0.17; // Aumento de velocidad en la caida
-  caidaInt= int(caida);
+  y+=caidaInt;            // POSICION DEL PAJARO 
+  caida=caida+0.2;        // Aumento de velocidad en la caida
+  caidaInt= int(caida);   // Convierte a entero
 
   // ----------- SALTO DEL PAJARO ---------------
   
   if (boton1 == 0) {
     caida = -3; //    GENERA EL SALTO DEL PAJARO (COLOCA LA Y 6 POSICIONES ARRIBA)  
   }
-
+  // ------------- DIBUJO DEL PAJARO ------------------
     int anim = (y/11)%8;
   
      
@@ -162,24 +173,44 @@ if(menu==1){
      H_line( 50, y-2, 15, 0x0000);
      H_line( 50, y-3, 15, 0x0000);
 
-     // --------------- MOVIMIENTO TUBOS -------------
+  // --------------- MOVIMIENTO TUBOS -------------
 
-    x=x-movimiento;         // xP - x coordinate of the pilars; range: 319 - (-51)   
-    LCD_Sprite(x, 165, 10, 73, TUBOG,1, 1,0, 0);
-    V_line( x+11, 165, 73, 0x0000);
-    FillRect(0, 165, 11, 73, 0x0000);
+    x=x-movimiento;         // GENERA EL MOVIMIENTO DE LOS TUBOS    
     
+  // ---------------- TUBO SUPERIOR ----------------------
+    FillRect(x, 128, 10, yc, 0x0f00);
+    V_line( x+11, 128, yc, 0x0000);
+    V_line( x+12, 128, yc, 0x0000);
+
+  // ----------- POSICION Y ALTO DEL TUBO INFERIOR -------------
+    
+    yl = 128 + 40 + yc;
+    al = 240 - 128 - 40 - yc;
+
+  // --------------- DIBUJA TUBO INFERIOR --------------------
+  
+    FillRect(x, yl, 10, al, 0x0f00);
+    V_line( x+11, 128 + yc + 40, 240- 128 + yc + 40, 0x0000);
+    V_line( x+12, 128 + yc + 40, 240- 128 + yc + 40, 0x0000);    
+        
     delay(15);
 
+  // -------------- CUANDO EL TUBO LLEGA AL FINAL -----------
     if (x<=-51){
-      x=319; // Resets xP to 319
-      //yP = rand() % 100+20; // Random number for the pillars height
+      x=319;                    // REINICIA LA POSICION INICAL DE LOS TUBOS
+      yc = 0;                   // REINICIO EL VALOR DEL ALTO DE LOS TUBOS
+      yc = rand() % 45 +10;     // PONGO OTRO VALOR ALEATORIO PARA EL ALTO DE LOS TUBOS    
+      score = score + 1;
     }
-    
-  if (y >= 225 ||y <= 130 || x<=60 && x>=40 && y+15 >= 165){
-    in=1;
+
+// ----------------- VERIFICA SI EL PAJARO CHOCO CON ALGO ------------------------
+
+  if (y >= 225 ||y <= 130 || x<=60 && x>=40 && y <= yc+128 || x<=60 && x>=40 && y + 16 >= yl){
+  in=1;
+ 
     //FillRect(0, 68+16, 319, 50, 0x0000);
     String text10 = "Game Over";
+    digitalWrite(PA_7,LOW);
     LCD_Print(text10, 100, 40, 2, 0xf000, 0x0000);
     delay(600);
      LCD_Print(text10, 100, 40, 2, 0xf000, 0x0000);
@@ -189,22 +220,23 @@ if(menu==1){
     LCD_Print(text12, 0, 90, 2, 0xf000, 0x0000);
     
   }
-  if(in==1){
+   if(in==1){
+
     if(boton1==0 && boton2==0){
    menu=0;
    in=0;
-   FillRect(0, 0, 320, 240, 0x0000);
+   FillRect(0, 0, 319, 240, 0x0bfff);
    
     }
   }
+  }
 }
-}
 
 
 
-//***
+//*
 // Función para inicializar LCD
-//***
+//*
 void LCD_Init(void) {
   pinMode(LCD_RST, OUTPUT);
   pinMode(LCD_CS, OUTPUT);
@@ -311,27 +343,27 @@ void LCD_Init(void) {
   LCD_CMD(ILI9341_DISPON);    //Display on
   digitalWrite(LCD_CS, HIGH);
 }
-//***
+//*
 // Función para enviar comandos a la LCD - parámetro (comando)
-//***
+//*
 void LCD_CMD(uint8_t cmd) {
   digitalWrite(LCD_RS, LOW);
   digitalWrite(LCD_WR, LOW);
   GPIO_PORTB_DATA_R = cmd;
   digitalWrite(LCD_WR, HIGH);
 }
-//***
+//*
 // Función para enviar datos a la LCD - parámetro (dato)
-//***
+//*
 void LCD_DATA(uint8_t data) {
   digitalWrite(LCD_RS, HIGH);
   digitalWrite(LCD_WR, LOW);
   GPIO_PORTB_DATA_R = data;
   digitalWrite(LCD_WR, HIGH);
 }
-//***
+//*
 // Función para definir rango de direcciones de memoria con las cuales se trabajara (se define una ventana)
-//***
+//*
 void SetWindows(unsigned int x1, unsigned int y1, unsigned int x2, unsigned int y2) {
   LCD_CMD(0x2a); // Set_column_address 4 parameters
   LCD_DATA(x1 >> 8);
@@ -345,9 +377,9 @@ void SetWindows(unsigned int x1, unsigned int y1, unsigned int x2, unsigned int 
   LCD_DATA(y2);   
   LCD_CMD(0x2c); // Write_memory_start
 }
-//***
+//*
 // Función para borrar la pantalla - parámetros (color)
-//***
+//*
 void LCD_Clear(unsigned int c){  
   unsigned int x, y;
   LCD_CMD(0x02c); // write_memory_start
@@ -361,9 +393,9 @@ void LCD_Clear(unsigned int c){
     }
   digitalWrite(LCD_CS, HIGH);
 } 
-//***
+//*
 // Función para dibujar una línea horizontal - parámetros ( coordenada x, cordenada y, longitud, color)
-//*** 
+//* 
 void H_line(unsigned int x, unsigned int y, unsigned int l, unsigned int c) {  
   unsigned int i, j;
   LCD_CMD(0x02c); //write_memory_start
@@ -378,9 +410,9 @@ void H_line(unsigned int x, unsigned int y, unsigned int l, unsigned int c) {
   }
   digitalWrite(LCD_CS, HIGH);
 }
-//***
+//*
 // Función para dibujar una línea vertical - parámetros ( coordenada x, cordenada y, longitud, color)
-//*** 
+//* 
 void V_line(unsigned int x, unsigned int y, unsigned int l, unsigned int c) {  
   unsigned int i,j;
   LCD_CMD(0x02c); //write_memory_start
@@ -395,18 +427,18 @@ void V_line(unsigned int x, unsigned int y, unsigned int l, unsigned int c) {
   }
   digitalWrite(LCD_CS, HIGH);  
 }
-//***
+//*
 // Función para dibujar un rectángulo - parámetros ( coordenada x, cordenada y, ancho, alto, color)
-//***
+//*
 void Rect(unsigned int x, unsigned int y, unsigned int w, unsigned int h, unsigned int c) {
   H_line(x  , y  , w, c);
   H_line(x  , y+h, w, c);
   V_line(x  , y  , h, c);
   V_line(x+w, y  , h, c);
 }
-//***
+//*
 // Función para dibujar un rectángulo relleno - parámetros ( coordenada x, cordenada y, ancho, alto, color)
-//***
+//*
 /*void FillRect(unsigned int x, unsigned int y, unsigned int w, unsigned int h, unsigned int c) {
   unsigned int i;
   for (i = 0; i < h; i++) {
@@ -438,9 +470,9 @@ void FillRect(unsigned int x, unsigned int y, unsigned int w, unsigned int h, un
   }
   digitalWrite(LCD_CS, HIGH);
 }
-//***
+//*
 // Función para dibujar texto - parámetros ( texto, coordenada x, cordenada y, color, background) 
-//***
+//*
 void LCD_Print(String text, int x, int y, int fontSize, int color, int background) {
   int fontXSize ;
   int fontYSize ;
@@ -489,9 +521,9 @@ void LCD_Print(String text, int x, int y, int fontSize, int color, int backgroun
     digitalWrite(LCD_CS, HIGH);
   }
 }
-//***
+//*
 // Función para dibujar una imagen a partir de un arreglo de colores (Bitmap) Formato (Color 16bit R 5bits G 6bits B 5bits)
-//***
+//*
 void LCD_Bitmap(unsigned int x, unsigned int y, unsigned int width, unsigned int height, unsigned char bitmap[]){  
   LCD_CMD(0x02c); // write_memory_start
   digitalWrite(LCD_RS, HIGH);
@@ -514,9 +546,9 @@ void LCD_Bitmap(unsigned int x, unsigned int y, unsigned int width, unsigned int
   }
   digitalWrite(LCD_CS, HIGH);
 }
-//***
+//*
 // Función para dibujar una imagen sprite - los parámetros columns = número de imagenes en el sprite, index = cual desplegar, flip = darle vuelta
-//***
+//*
 void LCD_Sprite(int x, int y, int width, int height, unsigned char bitmap[],int columns, int index, char flip, char offset){
   LCD_CMD(0x02c); // write_memory_start
   digitalWrite(LCD_RS, HIGH);
