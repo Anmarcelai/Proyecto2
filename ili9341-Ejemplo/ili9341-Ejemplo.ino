@@ -35,7 +35,7 @@ const int buttonPin1 = PUSH1;  // PLAYER 1 - MENU
 const int buttonPin2 = PUSH2;  // PLAYER 2
 int menu=0;
 int in=0;
-
+int alarma=0;
 
 int caidaInt = 0;             // CONTROLA LA CAIDA
 float caida = 0;              // AUMENTO DE VELOCIDAD
@@ -115,8 +115,9 @@ pinMode(PA_7, OUTPUT);
 void loop() {
   int boton1 = digitalRead(buttonPin1); 
   int boton2 = digitalRead(buttonPin2); 
-
+  
   if(menu==0){
+    alarma=0;
      y=160;
      x=339;
      yc = 20;
@@ -157,13 +158,13 @@ if(menu==1){
 
   // ----------- SALTO DEL PAJARO ---------------
   
-  if (boton1 == 0) {
+  if (boton1 == 0 && alarma==0) {
     caida = -3; //    GENERA EL SALTO DEL PAJARO (COLOCA LA Y 6 POSICIONES ARRIBA)  
   }
   // ------------- DIBUJO DEL PAJARO ------------------
     int anim = (y/11)%8;
   
-     
+     if(alarma==0){
      LCD_Sprite(50, y, 16, 16, J1,3, anim,0, 0);
      H_line( 50, y+15, 15, 0x0000);
      H_line( 50, y+16, 15, 0x0000);
@@ -193,7 +194,7 @@ if(menu==1){
     V_line( x+11, 128 + yc + 40, 240- 128 + yc + 40, 0x0000);
     V_line( x+12, 128 + yc + 40, 240- 128 + yc + 40, 0x0000);    
         
-    delay(15);
+    delay(15); }
 
   // -------------- CUANDO EL TUBO LLEGA AL FINAL -----------
     if (x<=-51){
@@ -210,6 +211,7 @@ if(menu==1){
  
     //FillRect(0, 68+16, 319, 50, 0x0000);
     String text10 = "Game Over";
+    alarma=1;
     digitalWrite(PA_7,LOW);
     LCD_Print(text10, 100, 40, 2, 0xf000, 0x0000);
     delay(600);
