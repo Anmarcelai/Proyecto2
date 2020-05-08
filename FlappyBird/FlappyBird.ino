@@ -4,6 +4,15 @@
  * Adaptación, migración y creación de nuevas funciones: Pablo Mazariegos y José Morales
  * Con ayuda de: José Guerra
  * IE3027: Electrónica Digital 2 - 2019
+ * 
+ * 
+ * 
+ *            PROYECTO 2 - DIGITAL 2
+ *                (FLAPPY BIRD) 
+ *    SECCION 20
+ *    INTEGRANTES:
+ *      MARCELA IXQUIAC - 172
+ *      ANDRES SIERRA - 17025
  */
 //*
 #include <stdint.h>
@@ -31,25 +40,33 @@
 #define LCD_RD PE_1
 int DPINS[] = {PB_0, PB_1, PB_2, PB_3, PB_4, PB_5, PB_6, PB_7,PA_7};  
 
-const int buttonPin1 = PUSH1;  // PLAYER 1 - MENU
+const int buttonPin1 = PUSH1;  // PLAYER 1 
 const int buttonPin2 = PUSH2;  // PLAYER 2
 int menu=0;
 int in=0;
 int alarma=0;
 
-int caidaInt = 0;             // CONTROLA LA CAIDA
-float caida = 0;              // AUMENTO DE VELOCIDAD
+int caidaInt = 0;              // CONTROLA LA CAIDA
+float caida = 0;               // AUMENTO DE VELOCIDAD
+int caidaInt2 = 0;             // CONTROLA LA CAIDA 2
+float caida2 = 0;              // AUMENTO DE VELOCIDAD 2
+
 int y = 160;                  // POSICION DEL PAJARO
+int y2 = 32;                  // POSICION DEL PAJARO 2
 
 int x = 319;                  // POSICION DEL PAJARO
+int x2 = 319;                 // POSICION DEL PAJARO ARRIBA
 int movimiento = 2;           // MOVIMIENTO DE LOS TUBOS
 
-int yc = 0;                 // ALTURA DE LOS TUBOS
+int yc = 0;                   // ALTURA DE LOS TUBOS ABAJO
+int yc2 = 0;                  // ALTURA DE LOS TUBOS ARRIBA
 
-int yl = 0;                 // POSICION PARA LA Y EL TUBO DE ABAJO
-int al = 0;                 // ALTURA DEL TUBO DE ABAJO
+int yT = 0;                   // POSICION PARA LA Y EL TUBO DE ABAJO
+int aT = 0;                   // ALTURA DEL TUBO DE ABAJO
+int yT2 = 0;                  // POSICION PARA LA Y EL TUBO DE ARRIBA
+int aT2 = 0;                  // ALTURA DEL TUBO DE ARRIBA
 
-int score = 0;             // contador del puntaje del jugador
+int score = 0;                // contador del puntaje del jugador
 
 //*
 // Functions Prototypes
@@ -109,9 +126,9 @@ pinMode(PA_7, OUTPUT);
     
   
 }
-//*****
+//***************
 //              Loop Infinito
-//******
+//***************
 void loop() {
   int boton1 = digitalRead(buttonPin1); 
   int boton2 = digitalRead(buttonPin2); 
@@ -119,8 +136,12 @@ void loop() {
   if(menu==0){
     alarma=0;
      y=160;
+     y2=32;
      x=339;
+     x2=339;
      yc = 20;
+     yc2 = 40;
+     score = 0; 
     String text1 = "Flappy Bird";
      LCD_Print(text1, 80, 40, 2, 0x00000, 0x00bfff);
      for(int x=0 ; x<4; x++){
@@ -130,6 +151,7 @@ void loop() {
        LCD_Bitmap(x, 201, 22, 39, GRAMA);}
      delay(90);
      }
+     
      String text2 = "Instrucciones:";
      String text3 = "Con los botones ";
      LCD_Print(text2, 60, 70, 2, 0xf0ff, 0x0bfff);
@@ -144,7 +166,7 @@ void loop() {
       FillRect(0, 0, 319, 240, 0x0000);
        for(int x = 0; x <319; x = x + 16){
        LCD_Bitmap(x, 112, 16, 16, tile2);}
-      LCD_Sprite(50, y, 16, 16, J2,3, 1 ,0, 0);
+      //LCD_Sprite(50, y, 16, 16, J2,3, 1 ,0, 0);
     }
     
   }
@@ -156,15 +178,26 @@ if(menu==1){
   caida=caida+0.2;        // Aumento de velocidad en la caida
   caidaInt= int(caida);   // Convierte a entero
 
-  // ----------- SALTO DEL PAJARO ---------------
+  // ------------ CAIDA DEL PAJARO 2 --------------- 
+  y2+=caidaInt2;            // POSICION DEL PAJARO 
+  caida2=caida2+0.2;        // Aumento de velocidad en la caida
+  caidaInt2= int(caida2);   // Convierte a entero
   
+  // ----------- SALTO DEL PAJARO --------------- 
   if (boton1 == 0 && alarma==0) {
     caida = -3; //    GENERA EL SALTO DEL PAJARO (COLOCA LA Y 6 POSICIONES ARRIBA)  
   }
-  // ------------- DIBUJO DEL PAJARO ------------------
+
+    // ----------- SALTO DEL PAJARO 2 --------------- 
+  if (boton2 == 0 && alarma==0) {
+    caida2 = -3; //    GENERA EL SALTO DEL PAJARO (COLOCA LA Y 6 POSICIONES ARRIBA)  
+  }
+  
+  // ------------- DIBUJO DE LOS PAJAROS ------------------
     int anim = (y/11)%8;
   
      if(alarma==0){
+  // ------------------ PAJARO 1 ---------------------
      LCD_Sprite(50, y, 16, 16, J1,3, anim,0, 0);
      H_line( 50, y+15, 15, 0x0000);
      H_line( 50, y+16, 15, 0x0000);
@@ -174,8 +207,20 @@ if(menu==1){
      H_line( 50, y-2, 15, 0x0000);
      H_line( 50, y-3, 15, 0x0000);
 
-  // --------------- MOVIMIENTO TUBOS -------------
+  // ------------------ PAJARO 2 -------------------
+     LCD_Sprite(50, y2, 16, 16, J2,3, anim,0, 0);
+     H_line( 50, y2+15, 15, 0x0000);
+     H_line( 50, y2+16, 15, 0x0000);
+     H_line( 50, y2+17, 15, 0x0000);
+     
+     H_line( 50, y2-1, 15, 0x0000);
+     H_line( 50, y2-2, 15, 0x0000);
+     H_line( 50, y2-3, 15, 0x0000);  
 
+  // --------------- MOVIMIENTO TUBOS ----------------------
+  // -------------------------------------------------------
+  //                TUBOS DE ABAJO 
+  // -------------------------------------------------------
     x=x-movimiento;         // GENERA EL MOVIMIENTO DE LOS TUBOS    
     
   // ---------------- TUBO SUPERIOR ----------------------
@@ -183,52 +228,118 @@ if(menu==1){
     V_line( x+11, 128, yc, 0x0000);
     V_line( x+12, 128, yc, 0x0000);
 
-  // ----------- POSICION Y ALTO DEL TUBO INFERIOR -------------
-    
-    yl = 128 + 40 + yc;
-    al = 240 - 128 - 40 - yc;
+  // ----------- POSICION Y ALTO DEL TUBO INFERIOR -------------  
+    yT = 128 + 40 + yc;
+    aT = 240 - 128 - 40 - yc;
 
   // --------------- DIBUJA TUBO INFERIOR --------------------
-  
-    FillRect(x, yl, 10, al, 0x0f00);
+    FillRect(x, yT, 10, aT, 0x0f00);
     V_line( x+11, 128 + yc + 40, 240- 128 + yc + 40, 0x0000);
     V_line( x+12, 128 + yc + 40, 240- 128 + yc + 40, 0x0000);    
-        
+
+  // -------------------------------------------------------      
+  //               TUBOS DE ARRIBA
+  // -------------------------------------------------------
+
+    x2=x2-movimiento;         // GENERA EL MOVIMIENTO DE LOS TUBOS     
+
+  // ---------------- TUBO SUPERIOR ----------------------
+    FillRect(x2, 0, 10, yc2, 0x0f00);
+    V_line( x2+11, 0, yc2, 0x0000);
+    V_line( x2+12, 0, yc2, 0x0000);
+
+  // ----------- POSICION Y ALTO DEL TUBO INFERIOR -------------  
+    yT2 = 40 + yc2;
+    aT2 = 112 - 40 - yc2;
+
+  // --------------- DIBUJA TUBO INFERIOR --------------------
+    FillRect(x2, yT2, 10, aT2, 0x0f00);
+    V_line( x2+11, yT2, aT2, 0x0000);
+    V_line( x2+12, yT2, aT2, 0x0000);  
+    
+  
     delay(15); }
 
-  // -------------- CUANDO EL TUBO LLEGA AL FINAL -----------
+  // -------------- CUANDO LOS TUBOS LLEGA AL FINAL (ABAJO) -----------
     if (x<=-51){
       x=319;                    // REINICIA LA POSICION INICAL DE LOS TUBOS
       yc = 0;                   // REINICIO EL VALOR DEL ALTO DE LOS TUBOS
-      yc = rand() % 45 +10;     // PONGO OTRO VALOR ALEATORIO PARA EL ALTO DE LOS TUBOS    
+      yc = rand() % 45 +10;     // PONGO OTRO VALOR ALEATORIO PARA EL ALTO DE LOS TUBOS 
+      
+  // --------------- PARA EL OTRO TUBO -------------------   
+      x2=319;                    // REINICIA LA POSICION INICAL DE LOS TUBOS
+      yc2 = 0;                   // REINICIO EL VALOR DEL ALTO DE LOS TUBOS
+      yc2 = rand() % 45 +10;     // PONGO OTRO VALOR ALEATORIO PARA EL ALTO DE LOS TUBOS  
       score = score + 1;
     }
+    
+  // -------------- CUANDO LOS TUBOS LLEGA AL FINAL (ARRIBA) -----------
+    if (x<=-51){
+      x2=319;                    // REINICIA LA POSICION INICAL DE LOS TUBOS
+      yc2 = 0;                   // REINICIO EL VALOR DEL ALTO DE LOS TUBOS
+      yc2 = rand() % 45 +10;     // PONGO OTRO VALOR ALEATORIO PARA EL ALTO DE LOS TUBOS    
+    }  
 
 // ----------------- VERIFICA SI EL PAJARO CHOCO CON ALGO ------------------------
-
-  if (y >= 225 ||y <= 130 || x<=60 && x>=40 && y <= yc+128 || x<=60 && x>=40 && y + 16 >= yl){
+  if (y >= 225 ||y <= 130 || x <= 60 && x >= 40 && y <= yc + 128 || x <= 60 && x >= 40 && y + 16 >= yT ){
   in=1;
  
-    //FillRect(0, 68+16, 319, 50, 0x0000);
-    String text10 = "Game Over";
+    FillRect(0, 128, 319, 112, 0x0000);
+    String text10 = "GAME OVER";
     alarma=1;
     digitalWrite(PA_7,LOW);
-    LCD_Print(text10, 100, 40, 2, 0xf000, 0x0000);
-    delay(600);
-     LCD_Print(text10, 100, 40, 2, 0xf000, 0x0000);
-    String text11 = "Para Iniciar de nuevo";
-     LCD_Print(text11, 0, 70, 2, 0xf000, 0x0000);
+    LCD_Print(text10, 100, 158, 2, 0xf000, 0x0000);   
+    LCD_Print(text10, 100, 158, 2, 0xf000, 0x0000);
+    String text11 = "Para Reiniciar";
+     LCD_Print(text11, 25, 188, 2, 0xf000, 0x0000);
     String text12 = "Presione boton 1 y 2";
-    LCD_Print(text12, 0, 90, 2, 0xf000, 0x0000);
-    
+    LCD_Print(text12, 0, 213, 2, 0xf000, 0x0000);
+
+    FillRect(66, 0, 253, 112, 0x0000);
+    String text18 = "GANADOR:";
+    LCD_Print(text18, 80, 30, 2, 0xf000, 0x0000);
+    String text19 = "JUGADOR 1";
+    LCD_Print(text19, 80, 50, 2, 0xf000, 0x0000);
+
+    String text20 = "Score:";
+    LCD_Print(String(score), 80, 75, 2, 0xf000, 0x0000);
+    delay(500);
   }
+
+  if (x2 <= 60 && x2 >=40 && y2 + 16 >= yT2 || x2 <= 60 && x2 >= 40 && y2 <= yc2 || y2 + 16 >= 112 ||y2 <= 1){
+  in=1;
+ 
+    FillRect(0, 0, 319, 112, 0x0000);
+    String text13 = "GAME OVER";
+    alarma=1;
+    digitalWrite(PA_7,LOW);
+    LCD_Print(text13, 100, 30, 2, 0xf000, 0x0000);   
+    LCD_Print(text13, 100, 30, 2, 0xf000, 0x0000);
+    String text14 = "Para Reiniciar";
+     LCD_Print(text14, 25, 60, 2, 0xf000, 0x0000);
+    String text15 = "Presione boton 1 y 2";
+    LCD_Print(text15, 0, 85, 2, 0xf000, 0x0000);
+
+    FillRect(66, 128, 253, 112, 0x0000);
+    String text16 = "GANADOR:";
+    LCD_Print(text16, 80, 140, 2, 0xf000, 0x0000);
+    String text17 = "JUGADOR 2";
+    LCD_Print(text17, 80, 160, 2, 0xf000, 0x0000);
+
+    String text19 = "Score:";
+    LCD_Print(String(score), 80, 185, 2, 0xf000, 0x0000);
+  
+    delay(500);
+  }
+  
+
+  // ----------------------- VUELVE AL INICIO ------------------
    if(in==1){
 
     if(boton1==0 && boton2==0){
    menu=0;
    in=0;
-   FillRect(0, 0, 319, 240, 0x0bfff);
-   
+   FillRect(0, 0, 319, 240, 0x0bfff);   
     }
   }
   }
