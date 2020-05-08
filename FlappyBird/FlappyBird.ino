@@ -11,7 +11,7 @@
  *                (FLAPPY BIRD) 
  *    SECCION 20
  *    INTEGRANTES:
- *      MARCELA IXQUIAC - 172
+ *      MARCELA IXQUIAC - 17285
  *      ANDRES SIERRA - 17025
  */
 //*
@@ -65,7 +65,8 @@ int yT = 0;                   // POSICION PARA LA Y EL TUBO DE ABAJO
 int aT = 0;                   // ALTURA DEL TUBO DE ABAJO
 int yT2 = 0;                  // POSICION PARA LA Y EL TUBO DE ARRIBA
 int aT2 = 0;                  // ALTURA DEL TUBO DE ARRIBA
-
+int PAJ1=0;
+int PAJ2=0;
 int score = 0;                // contador del puntaje del jugador
 
 //*
@@ -142,6 +143,8 @@ void loop() {
      yc = 20;
      yc2 = 40;
      score = 0; 
+     PAJ1=0;
+     PAJ2=0;
     String text1 = "Flappy Bird";
      LCD_Print(text1, 80, 40, 2, 0x00000, 0x00bfff);
      for(int x=0 ; x<4; x++){
@@ -282,60 +285,71 @@ if(menu==1){
 
 // ----------------- VERIFICA SI EL PAJARO CHOCO CON ALGO ------------------------
   if (y >= 225 ||y <= 130 || x <= 60 && x >= 40 && y <= yc + 128 || x <= 60 && x >= 40 && y + 16 >= yT ){
+  if(PAJ2==0){
   in=1;
  
-    FillRect(0, 128, 319, 112, 0x0000);
+    //FillRect(0, 128, 319, 112, 0x0000);
     String text10 = "GAME OVER";
     alarma=1;
     digitalWrite(PA_7,LOW);
     LCD_Print(text10, 100, 158, 2, 0xf000, 0x0000);   
     LCD_Print(text10, 100, 158, 2, 0xf000, 0x0000);
     String text11 = "Para Reiniciar";
-     LCD_Print(text11, 25, 188, 2, 0xf000, 0x0000);
+     LCD_Print(text11, 25, 188, 2, 0xffff, 0x0000);
     String text12 = "Presione boton 1 y 2";
-    LCD_Print(text12, 0, 213, 2, 0xf000, 0x0000);
-
-    FillRect(66, 0, 253, 112, 0x0000);
+    LCD_Print(text12, 0, 213, 2, 0xffff, 0x0000);
+  delay(1000);
+    //FillRect(66, 0, 253, 112, 0x0000);
     String text18 = "GANADOR:";
-    LCD_Print(text18, 80, 30, 2, 0xf000, 0x0000);
+    LCD_Print(text18, 80, 30, 2, 0xffff, 0x0000);
     String text19 = "JUGADOR 1";
-    LCD_Print(text19, 80, 50, 2, 0xf000, 0x0000);
-
+    LCD_Print(text19, 80, 50, 2, 0xffff, 0x0000);
+ PAJ1=1;
+ PAJ2=0;
     String text20 = "Score:";
     LCD_Print(String(score), 80, 75, 2, 0xf000, 0x0000);
     delay(500);
-  }
+  }}
 
   if (x2 <= 60 && x2 >=40 && y2 + 16 >= yT2 || x2 <= 60 && x2 >= 40 && y2 <= yc2 || y2 + 16 >= 112 ||y2 <= 1){
+    if(PAJ1==0){
   in=1;
  
-    FillRect(0, 0, 319, 112, 0x0000);
+    //FillRect(0, 0, 319, 112, 0x0000);
     String text13 = "GAME OVER";
     alarma=1;
     digitalWrite(PA_7,LOW);
     LCD_Print(text13, 100, 30, 2, 0xf000, 0x0000);   
     LCD_Print(text13, 100, 30, 2, 0xf000, 0x0000);
     String text14 = "Para Reiniciar";
-     LCD_Print(text14, 25, 60, 2, 0xf000, 0x0000);
+     LCD_Print(text14, 25, 60, 2, 0xffff, 0x0000);
     String text15 = "Presione boton 1 y 2";
-    LCD_Print(text15, 0, 85, 2, 0xf000, 0x0000);
-
-    FillRect(66, 128, 253, 112, 0x0000);
+    LCD_Print(text15, 0, 85, 2, 0xffff, 0x0000);
+    delay(1000);
+    //FillRect(66, 128, 253, 112, 0x0000);
     String text16 = "GANADOR:";
-    LCD_Print(text16, 80, 140, 2, 0xf000, 0x0000);
+    LCD_Print(text16, 80, 140, 2, 0xffff, 0x0000);
     String text17 = "JUGADOR 2";
-    LCD_Print(text17, 80, 160, 2, 0xf000, 0x0000);
-
+    LCD_Print(text17, 80, 160, 2, 0xffff, 0x0000);
+PAJ1=0;
+ PAJ2=1;
     String text19 = "Score:";
     LCD_Print(String(score), 80, 185, 2, 0xf000, 0x0000);
   
     delay(500);
-  }
+  }}
   
 
   // ----------------------- VUELVE AL INICIO ------------------
    if(in==1){
-
+   
+FillRect(0, 0, 319, 240, 0x0000); 
+/*String text13 = "GAME OVER";
+ LCD_Print(text13, 100, 30, 2, 0xf000, 0x0000);
+ String text14 = "Para Reiniciar";
+     LCD_Print(text14, 25, 60, 2, 0xffff, 0x0000);
+    String text15 = "Presione boton 1 y 2";
+    LCD_Print(text15, 0, 85, 2, 0xffff, 0x0000); */
     if(boton1==0 && boton2==0){
    menu=0;
    in=0;
