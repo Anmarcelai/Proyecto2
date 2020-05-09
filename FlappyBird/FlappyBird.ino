@@ -42,6 +42,8 @@ int DPINS[] = {PB_0, PB_1, PB_2, PB_3, PB_4, PB_5, PB_6, PB_7,PA_7};
 
 const int buttonPin1 = PUSH1;  // PLAYER 1 
 const int buttonPin2 = PUSH2;  // PLAYER 2
+// ------------ VARIABLES -------------------
+
 int menu=0;
 int in=0;
 int alarma=0;
@@ -127,15 +129,15 @@ pinMode(PA_7, OUTPUT);
     
   
 }
-//***************
+//***
 //              Loop Infinito
-//***************
+//***
 void loop() {
-  int boton1 = digitalRead(buttonPin1); 
+  int boton1 = digitalRead(buttonPin1);         // DECLARAMO LAS VARIABLES DE LOS BOTONES
   int boton2 = digitalRead(buttonPin2); 
   
-  if(menu==0){
-    alarma=0;
+  if(menu==0){ // Si el juego está en modo MENU y no en Modo jugador
+    alarma=0;                   // RESETEA TODAS LAS VARIABLES 
      y=160;
      y2=32;
      x=339;
@@ -151,7 +153,7 @@ void loop() {
      LCD_Sprite(60, 40, 16, 16, PAJARO,3,x,0, 0);
      LCD_Sprite(260, 40, 16, 16, PAJARO,3,x,0, 0);
      for(int x = 0; x <319; x = x + 22){
-       LCD_Bitmap(x, 201, 22, 39, GRAMA);}
+       LCD_Bitmap(x, 201, 22, 39, GRAMA);} // Dibuja la pantalla de inicio y escribe el titulo
      delay(90);
      }
      
@@ -162,11 +164,11 @@ void loop() {
      String text4 = "evite los obstaculos";
      String text5 = "Presione Boton 1 y 2";
     LCD_Print(text4, 0, 110, 2, 0xf0ff, 0x0bfff);
-    LCD_Print(text5, 0, 130, 2, 0xf0ff, 0x0bfff);
-    if (boton1==0 && boton2==0){
-      menu=1;
-       digitalWrite(PA_7,HIGH);
-      FillRect(0, 0, 319, 240, 0x0000);
+    LCD_Print(text5, 0, 130, 2, 0xf0ff, 0x0bfff); // Escribe las instrucciones
+    if (boton1==0 && boton2==0){                  // Si el Usuario presiona ambos botones, se ingresa al juego 
+      menu=1;                                     // Cambia al modo Jugador
+       digitalWrite(PA_7,HIGH);                   // Cambia el estado del pin digital para cambiar la melodía al comunicarse con el arduino
+      FillRect(0, 0, 319, 240, 0x0000);            // Dibuja la Línea divisora
        for(int x = 0; x <319; x = x + 16){
        LCD_Bitmap(x, 112, 16, 16, tile2);}
       //LCD_Sprite(50, y, 16, 16, J2,3, 1 ,0, 0);
@@ -174,11 +176,11 @@ void loop() {
     
   }
 
-if(menu==1){
+if(menu==1){  // Si el juego se encuentra en modo jugador, entonces
   
   // ------------ CAIDA DEL PAJARO --------------- 
-  y+=caidaInt;            // POSICION DEL PAJARO 
-  caida=caida+0.2;        // Aumento de velocidad en la caida
+  y+=caidaInt;            // POSICION DEL PAJARO   La esta variable aumenta su valor con cada repeticion
+  caida=caida+0.2;        // AUMENTO DE VELOCIDAD EN LA CAIDA. Se hace que cada vez aumente de velocidad mas rapido.
   caidaInt= int(caida);   // Convierte a entero
 
   // ------------ CAIDA DEL PAJARO 2 --------------- 
@@ -188,7 +190,7 @@ if(menu==1){
   
   // ----------- SALTO DEL PAJARO --------------- 
   if (boton1 == 0 && alarma==0) {
-    caida = -3; //    GENERA EL SALTO DEL PAJARO (COLOCA LA Y 6 POSICIONES ARRIBA)  
+    caida = -3;                             //GENERA EL SALTO DEL PAJARO. CADA QUE SE PRESIONE EL BOTON DISMINUYE EL VALOR DE LA POSICION EN Y   
   }
 
     // ----------- SALTO DEL PAJARO 2 --------------- 
@@ -197,11 +199,11 @@ if(menu==1){
   }
   
   // ------------- DIBUJO DE LOS PAJAROS ------------------
-    int anim = (y/11)%8;
+    int anim = (y/11)%8;                 // PARA LA ANIMACION DEL MOVIMIENTO
   
      if(alarma==0){
   // ------------------ PAJARO 1 ---------------------
-     LCD_Sprite(50, y, 16, 16, J1,3, anim,0, 0);
+     LCD_Sprite(50, y, 16, 16, J1,3, anim,0, 0);          // DIBUJA EL PAJARO EN LA POSICION YA DEFINIDA Y SE CREAN 3 LINEAS PARA BORRAR EL RASTRO QUE DEJA
      H_line( 50, y+15, 15, 0x0000);
      H_line( 50, y+16, 15, 0x0000);
      H_line( 50, y+17, 15, 0x0000);
@@ -224,19 +226,19 @@ if(menu==1){
   // -------------------------------------------------------
   //                TUBOS DE ABAJO 
   // -------------------------------------------------------
-    x=x-movimiento;         // GENERA EL MOVIMIENTO DE LOS TUBOS    
+    x=x-movimiento;         // Genera el movimiento de los tubos restando el valor de la variable movimiento.    
     
   // ---------------- TUBO SUPERIOR ----------------------
-    FillRect(x, 128, 10, yc, 0x0f00);
+    FillRect(x, 128, 10, yc, 0x0f00);               // Crea un tubo verde cuya altura esta definido por la variable yc. 
     V_line( x+11, 128, yc, 0x0000);
     V_line( x+12, 128, yc, 0x0000);
 
   // ----------- POSICION Y ALTO DEL TUBO INFERIOR -------------  
-    yT = 128 + 40 + yc;
-    aT = 240 - 128 - 40 - yc;
+    yT = 128 + 40 + yc;                      //COORDENADA DEL TUBO DE ABAJO. Tomamos la coordenada donde empieza el tubo de arriba, se resta la altura del tubo de arriba y por ultimo se dejan 40 pixeles para que pase el pajaro
+    aT = 240 - 128 - 40 - yc;                // ALTURA DEL TUBO INFERIOR. Tomamos el alto de la pantalla y le quitamos el area donde no se trabaja, luego le resto la altura del tubo superior y le resto los 40 pixeles de espacio libre
 
   // --------------- DIBUJA TUBO INFERIOR --------------------
-    FillRect(x, yT, 10, aT, 0x0f00);
+    FillRect(x, yT, 10, aT, 0x0f00);        //Dibujamos el tubo con la coordenada y y altura que se crearon anteriormente
     V_line( x+11, 128 + yc + 40, 240- 128 + yc + 40, 0x0000);
     V_line( x+12, 128 + yc + 40, 240- 128 + yc + 40, 0x0000);    
 
@@ -273,7 +275,7 @@ if(menu==1){
       x2=319;                    // REINICIA LA POSICION INICAL DE LOS TUBOS
       yc2 = 0;                   // REINICIO EL VALOR DEL ALTO DE LOS TUBOS
       yc2 = rand() % 45 +10;     // PONGO OTRO VALOR ALEATORIO PARA EL ALTO DE LOS TUBOS  
-      score = score + 1;
+      score = score + 1;          // AUMENTO EN 1 EL SCORE
     }
     
   // -------------- CUANDO LOS TUBOS LLEGA AL FINAL (ARRIBA) -----------
@@ -284,14 +286,14 @@ if(menu==1){
     }  
 
 // ----------------- VERIFICA SI EL PAJARO CHOCO CON ALGO ------------------------
-  if (y >= 225 ||y <= 130 || x <= 60 && x >= 40 && y <= yc + 128 || x <= 60 && x >= 40 && y + 16 >= yT ){
-  if(PAJ2==0){
-  in=1;
+  if (y >= 225 ||y <= 130 || x <= 60 && x >= 40 && y <= yc + 128 || x <= 60 && x >= 40 && y + 16 >= yT ){ // COMPARO SI EL PAJARO COLISIONO CON ALGO COMPARANDO COORDENADAS, SE COMPARA EL TECHO, EL SUELO Y LOS                                                                                                          
+    if(PAJ2==0){                                                                                          //DOS TUBOS. 
+    in=1;
  
     //FillRect(0, 128, 319, 112, 0x0000);
-    String text10 = "GAME OVER";
+    String text10 = "GAME OVER"; // Indica que el juego se acabo
     alarma=1;
-    digitalWrite(PA_7,LOW);
+    digitalWrite(PA_7,LOW);        // Cambia el estado del pin digital para cambiar la melodía
     LCD_Print(text10, 100, 158, 2, 0xf000, 0x0000);   
     LCD_Print(text10, 100, 158, 2, 0xf000, 0x0000);
     String text11 = "Para Reiniciar";
@@ -303,10 +305,10 @@ if(menu==1){
     String text18 = "GANADOR:";
     LCD_Print(text18, 80, 30, 2, 0xffff, 0x0000);
     String text19 = "JUGADOR 1";
-    LCD_Print(text19, 80, 50, 2, 0xffff, 0x0000);
- PAJ1=1;
+    LCD_Print(text19, 80, 50, 2, 0xffff, 0x0000); //Imprime las leyendas de final de juego en la pantalla
+ PAJ1=1;                                          // Banderas que evitan que el juego siga si un jugador ya perdió
  PAJ2=0;
-    String text20 = "Score:";
+    String text20 = "Score:";                     // Imprime el puntaje del ganador 
     LCD_Print(String(score), 80, 75, 2, 0xf000, 0x0000);
     delay(500);
   }}
@@ -316,11 +318,11 @@ if(menu==1){
   in=1;
  
     //FillRect(0, 0, 319, 112, 0x0000);
-    String text13 = "GAME OVER";
+    String text13 = "GAME OVER"; // Indica que el juego se acabo
     alarma=1;
-    digitalWrite(PA_7,LOW);
+    digitalWrite(PA_7,LOW);      // Cambia el estado del pin digital para cambiar la melodía
     LCD_Print(text13, 100, 30, 2, 0xf000, 0x0000);   
-    LCD_Print(text13, 100, 30, 2, 0xf000, 0x0000);
+    LCD_Print(text13, 100, 30, 2, 0xf000, 0x0000); 
     String text14 = "Para Reiniciar";
      LCD_Print(text14, 25, 60, 2, 0xffff, 0x0000);
     String text15 = "Presione boton 1 y 2";
@@ -329,11 +331,11 @@ if(menu==1){
     //FillRect(66, 128, 253, 112, 0x0000);
     String text16 = "GANADOR:";
     LCD_Print(text16, 80, 140, 2, 0xffff, 0x0000);
-    String text17 = "JUGADOR 2";
+    String text17 = "JUGADOR 2";               //Imprime las leyendas de final de juego en la pantalla
     LCD_Print(text17, 80, 160, 2, 0xffff, 0x0000);
-PAJ1=0;
+PAJ1=0;  // Banderas que evitan que el juego siga si un jugador ya perdió
  PAJ2=1;
-    String text19 = "Score:";
+    String text19 = "Score:";              // Imprime el puntaje del ganador 
     LCD_Print(String(score), 80, 185, 2, 0xf000, 0x0000);
   
     delay(500);
